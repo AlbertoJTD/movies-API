@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
 namespace MoviesAPI
@@ -15,8 +16,9 @@ namespace MoviesAPI
 
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
 			services.AddControllers();
-			services.AddEndpointsApiExplorer();
 		}
 
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
