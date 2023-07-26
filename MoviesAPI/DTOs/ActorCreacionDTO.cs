@@ -9,5 +9,7 @@ namespace MoviesAPI.DTOs
 		public string Nombre { get; set; }
 
 		public DateTime FechaNacimiento { get; set; }
-	}
+
+        public IFormFile Foto { get; set; }
+    }
 }
