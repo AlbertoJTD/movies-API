@@ -50,5 +50,16 @@ namespace MoviesAPI.Controllers
 			var actorDTO = mapper.Map<ActorDTO>(entidad);
 			return new CreatedAtRouteResult("obtenerActor", new { id = actorDTO.Id }, actorDTO);
 		}
-    }
+
+		[HttpPut("{id:int}")]
+		public async Task<ActionResult> Put(int id, [FromBody] GeneroCreacionDTO actorCreacionDTO)
+		{
+			var entidad = mapper.Map<Actor>(actorCreacionDTO);
+			entidad.Id = id;
+
+			context.Entry(entidad).State = EntityState.Modified;
+			await context.SaveChangesAsync();
+			return NoContent();
+		}
+	}
 }
