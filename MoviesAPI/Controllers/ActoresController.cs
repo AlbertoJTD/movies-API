@@ -27,7 +27,7 @@ namespace MoviesAPI.Controllers
 			return mapper.Map<List<ActorDTO>>(entidades);
 		}
 
-		[HttpGet("{id:int", Name = "obtenerActor")]
+		[HttpGet("{id:int}", Name = "obtenerActor")]
 		public async Task<ActionResult<ActorDTO>> Get(int id)
 		{
 			var entidad = await context.Actores.FirstOrDefaultAsync(x => x.Id == id);
@@ -48,7 +48,7 @@ namespace MoviesAPI.Controllers
 			await context.SaveChangesAsync();
 
 			var actorDTO = mapper.Map<ActorDTO>(entidad);
-			return new CreatedAtRouteResult("obtenerActor", new { id = actorDTO.Id }, actorDTO);
+			return new CreatedAtRouteResult("obtenerActor", new { id = entidad.Id }, actorDTO);
 		}
 
 		[HttpPut("{id:int}")]
