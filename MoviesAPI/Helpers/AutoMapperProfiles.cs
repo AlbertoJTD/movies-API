@@ -10,6 +10,7 @@ namespace MoviesAPI.Helpers
         {
             CreateMap<Genero, GeneroDTO>().ReverseMap();
 			CreateMap<GeneroCreacionDTO, Genero>().ReverseMap();
+			CreateMap<Actor, ActorDTO>().ReverseMap();
 		}
 	}
 }
