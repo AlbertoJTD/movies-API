@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using MoviesAPI.Servicios;
 using System.Text.Json.Serialization;
 
 namespace MoviesAPI
@@ -17,6 +18,10 @@ namespace MoviesAPI
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddAutoMapper(typeof(Startup));
+
+			services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
+			services.AddHttpContextAccessor();
+
 			services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
 			services.AddControllers();
@@ -30,6 +35,7 @@ namespace MoviesAPI
 			}
 
 			app.UseHttpsRedirection();
+			app.UseStaticFiles();
 			app.UseRouting();
 
 			app.UseAuthorization();
