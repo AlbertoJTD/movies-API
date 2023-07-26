@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MoviesAPI.Validaciones;
+using System.ComponentModel.DataAnnotations;
 
 namespace MoviesAPI.DTOs
 {
@@ -10,6 +11,8 @@ namespace MoviesAPI.DTOs
 
 		public DateTime FechaNacimiento { get; set; }
 
+		[PesoArchivoValidacion(PesoMaximoEnMegaBytes: 4)]
+		[TipoArchivoValidacion(grupoTipoArchivo: GrupoTipoArchivo.Imagen)]
         public IFormFile Foto { get; set; }
     }
 }
