@@ -52,7 +52,7 @@ namespace MoviesAPI.Controllers
 		}
 
 		[HttpPut("{id:int}")]
-		public async Task<ActionResult> Put(int id, [FromBody] GeneroCreacionDTO actorCreacionDTO)
+		public async Task<ActionResult> Put(int id, [FromBody] ActorCreacionDTO actorCreacionDTO)
 		{
 			var entidad = mapper.Map<Actor>(actorCreacionDTO);
 			entidad.Id = id;
