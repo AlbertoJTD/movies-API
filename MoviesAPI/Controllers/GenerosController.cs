@@ -40,12 +40,7 @@ namespace MoviesAPI.Controllers
 		[HttpPut("{id:int}")]
 		public async Task<ActionResult> Put(int id, [FromBody] GeneroCreacionDTO generoCreacionDTO)
 		{
-			var entidad = mapper.Map<Genero>(generoCreacionDTO);
-			entidad.Id = id;
-
-			context.Entry(entidad).State = EntityState.Modified;
-			await context.SaveChangesAsync();
-			return NoContent();
+			return await Put<GeneroCreacionDTO, Genero>(id, generoCreacionDTO);
 		}
 
 		[HttpDelete("{id:int}")]
