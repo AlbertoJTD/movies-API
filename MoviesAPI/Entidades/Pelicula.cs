@@ -15,5 +15,9 @@ namespace MoviesAPI.Entidades
         public DateTime FechaEstreno { get; set; }
 
         public string Poster { get; set; }
+
+        public List<PeliculasActores> PeliculasActores { get; set; }
+
+        public List<PeliculasGeneros> PeliculasGeneros { get; set; }
     }
 }
