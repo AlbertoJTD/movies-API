@@ -8,6 +8,7 @@ using MoviesAPI.Helpers;
 using MoviesAPI.Servicios;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 
 namespace MoviesAPI.Controllers
 {
@@ -18,13 +19,15 @@ namespace MoviesAPI.Controllers
 		private readonly ApplicationDbContext context;
 		private readonly IMapper mapper;
 		private readonly IAlmacenadorArchivos almacenadorArchivos;
+		private readonly ILogger<PeliculasController> logger;
 		private readonly string contenedor = "peliculas";
 
-		public PeliculasController(ApplicationDbContext context, IMapper mapper, IAlmacenadorArchivos almacenadorArchivos)
+		public PeliculasController(ApplicationDbContext context, IMapper mapper, IAlmacenadorArchivos almacenadorArchivos, ILogger<PeliculasController> logger)
         {
 			this.context = context;
 			this.mapper = mapper;
 			this.almacenadorArchivos = almacenadorArchivos;
+			this.logger = logger;
 		}
 
 		[HttpGet()]
@@ -207,6 +210,20 @@ namespace MoviesAPI.Controllers
 				peliculasQueryable = peliculasQueryable.Where(x => x.PeliculasGeneros
 																	.Select(y => y.GeneroId)
 																	.Contains(filtroPeliculaDTO.GeneroId));
+			}
+
+			if (!string.IsNullOrEmpty(filtroPeliculaDTO.CampoOrdenar))
+			{
+				var tipoOrden = filtroPeliculaDTO.OrdenAscendente ? "ascending" : "descending";
+
+				try
+				{
+					peliculasQueryable = peliculasQueryable.OrderBy($"{filtroPeliculaDTO.CampoOrdenar} {tipoOrden}");
+				}
+				catch (Exception ex)
+				{
+					logger.LogError(ex.Message, ex);
+				}
 			}
 
 			await HttpContext.InsertarParametrosPaginacion(peliculasQueryable, filtroPeliculaDTO.CantidadRegistrosPorPagina);
