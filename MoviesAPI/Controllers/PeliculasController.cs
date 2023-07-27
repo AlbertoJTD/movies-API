@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI.DTOs;
 using MoviesAPI.Entidades;
+using MoviesAPI.Helpers;
 using MoviesAPI.Servicios;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MoviesAPI.Controllers
 {
@@ -173,6 +175,41 @@ namespace MoviesAPI.Controllers
 			await context.SaveChangesAsync();
 
 			return NoContent();
+		}
+
+		[HttpGet("filtro")]
+		public async Task<ActionResult<List<PeliculaDTO>>> Filtrar([FromQuery] FiltroPeliculaDTO filtroPeliculaDTO)
+		{
+			var peliculasQueryable = context.Peliculas.AsQueryable();
+
+			if (!string.IsNullOrEmpty(filtroPeliculaDTO.Titulo))
+			{
+				peliculasQueryable = peliculasQueryable.Where(x => x.Titulo.Contains(filtroPeliculaDTO.Titulo));
+			}
+
+            if (filtroPeliculaDTO.EnCines)
+            {
+				peliculasQueryable = peliculasQueryable.Where(x => x.EnCines);
+            }
+
+            if (filtroPeliculaDTO.ProximosEstrenos)
+            {
+				var hoy = DateTime.Today;
+				peliculasQueryable = peliculasQueryable.Where(x => x.FechaEstreno > hoy);
+			}
+
+			if (filtroPeliculaDTO.GeneroId != 0)
+			{
+				peliculasQueryable = peliculasQueryable.Where(x => x.PeliculasGeneros
+																	.Select(y => y.GeneroId)
+																	.Contains(filtroPeliculaDTO.GeneroId));
+			}
+
+			await HttpContext.InsertarParametrosPaginacion(peliculasQueryable, filtroPeliculaDTO.CantidadRegistrosPorPagina);
+
+			var peliculas = await peliculasQueryable.Paginar(filtroPeliculaDTO.Paginacion).ToListAsync();
+
+			return mapper.Map<List<PeliculaDTO>>(peliculas);
 		}
 	}
 }
