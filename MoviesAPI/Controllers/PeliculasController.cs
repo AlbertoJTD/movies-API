@@ -48,26 +48,26 @@ namespace MoviesAPI.Controllers
 		public async Task<ActionResult> Post([FromForm] PeliculaCreacionDTO peliculaCreacionDTO)
 		{
 			var pelicula = mapper.Map<Pelicula>(peliculaCreacionDTO);
+			return Ok();
+			//if (peliculaCreacionDTO.Poster != null)
+			//{
+			//	using (var memoryStream = new MemoryStream())
+			//	{
+			//		await peliculaCreacionDTO.Poster.CopyToAsync(memoryStream);
+			//		var contenido = memoryStream.ToArray();
+			//		var extension = Path.GetExtension(peliculaCreacionDTO.Poster.FileName);
 
-			if (peliculaCreacionDTO.Poster != null)
-			{
-				using (var memoryStream = new MemoryStream())
-				{
-					await peliculaCreacionDTO.Poster.CopyToAsync(memoryStream);
-					var contenido = memoryStream.ToArray();
-					var extension = Path.GetExtension(peliculaCreacionDTO.Poster.FileName);
+			//		pelicula.Poster = await almacenadorArchivos.GuardarArchivo(contenido, extension, contenedor,
+			//																	peliculaCreacionDTO.Poster.ContentType);
+			//	}
+			//}
 
-					pelicula.Poster = await almacenadorArchivos.GuardarArchivo(contenido, extension, contenedor,
-																				peliculaCreacionDTO.Poster.ContentType);
-				}
-			}
+			//context.Add(pelicula);
+			//await context.SaveChangesAsync();
 
-			context.Add(pelicula);
-			await context.SaveChangesAsync();
+			//var peliculaDTO = mapper.Map<PeliculaDTO>(pelicula);
 
-			var peliculaDTO = mapper.Map<PeliculaDTO>(pelicula);
-
-			return new CreatedAtRouteResult("obtenerPelicula", new { id = pelicula.Id }, peliculaDTO);
+			//return new CreatedAtRouteResult("obtenerPelicula", new { id = pelicula.Id }, peliculaDTO);
 		}
 
 		[HttpPut("{id:int}")]
