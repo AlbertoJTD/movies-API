@@ -10,13 +10,8 @@ namespace MoviesAPI.Controllers
 	[Route("api/generos")]
 	public class GenerosController : CustomBaseController
 	{
-		private readonly ApplicationDbContext context;
-		private readonly IMapper mapper;
-
 		public GenerosController(ApplicationDbContext context, IMapper mapper) : base(context, mapper)
         {
-			this.context = context;
-			this.mapper = mapper;
 		}
 
 		[HttpGet]
@@ -46,17 +41,7 @@ namespace MoviesAPI.Controllers
 		[HttpDelete("{id:int}")]
 		public async Task<ActionResult> Delete(int id)
 		{
-			var existe = await context.Generos.AnyAsync(x => x.Id == id);
-
-			if (!existe)
-			{
-				return NotFound();
-			}
-
-			context.Remove(new Genero { Id = id });
-			await context.SaveChangesAsync();
-
-			return NoContent();
+			return await Delete<Genero>(id);
 		}
     }
 }
