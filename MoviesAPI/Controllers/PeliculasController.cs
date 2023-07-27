@@ -62,6 +62,8 @@ namespace MoviesAPI.Controllers
 				}
 			}
 
+			AsignarOrdenActores(pelicula);
+
 			context.Add(pelicula);
 			await context.SaveChangesAsync();
 
@@ -70,15 +72,29 @@ namespace MoviesAPI.Controllers
 			return new CreatedAtRouteResult("obtenerPelicula", new { id = pelicula.Id }, peliculaDTO);
 		}
 
-		[HttpPut("{id:int}")]
-		public async Task<ActionResult> Put(int id, [FromBody] PeliculaCreacionDTO peliculaCreacionDTO)
+		private void AsignarOrdenActores(Pelicula pelicula)
 		{
-			var pelicula = await context.Peliculas.FirstOrDefaultAsync(x => x.Id == id);
+			if (pelicula.PeliculasActores != null)
+			{
+				for (int i = 0; i < pelicula.PeliculasActores.Count; i++)
+				{
+					pelicula.PeliculasActores[i].Orden = i;
+				}
+			}
+		}
+
+		[HttpPut("{id:int}")]
+		public async Task<ActionResult> Put(int id, [FromForm] PeliculaCreacionDTO peliculaCreacionDTO)
+		{
+			var pelicula = await context.Peliculas.Include(x => x.PeliculasActores)
+												  .Include(x => x.PeliculasGeneros)
+												  .FirstOrDefaultAsync(x => x.Id == id);
 			if (pelicula == null)
 			{
 				return NotFound();
 			}
 
+			pelicula = mapper.Map(peliculaCreacionDTO, pelicula);
 			if (peliculaCreacionDTO.Poster != null)
 			{
 				using (var memoryStream = new MemoryStream())
@@ -92,8 +108,7 @@ namespace MoviesAPI.Controllers
 				}
 			}
 
-			pelicula = mapper.Map(peliculaCreacionDTO, pelicula);
-
+			AsignarOrdenActores(pelicula);
 			await context.SaveChangesAsync();
 			return NoContent();
 		}
