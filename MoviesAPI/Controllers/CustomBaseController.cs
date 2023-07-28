@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Azure;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI.DTOs;
@@ -78,6 +80,36 @@ namespace MoviesAPI.Controllers
 			}
 
 			context.Remove(new TEntidad() { Id = id });
+			await context.SaveChangesAsync();
+
+			return NoContent();
+		}
+
+		protected async Task<ActionResult> Patch<TEntidad, TDTO>(int id, JsonPatchDocument<TDTO> patchDocument) where TDTO : class
+																												where TEntidad : class, IId
+		{
+			if (patchDocument == null)
+			{
+				return BadRequest();
+			}
+
+			var entidadDB = await context.Set<TEntidad>().FirstOrDefaultAsync(x => x.Id == id);
+			if (entidadDB == null)
+			{
+				return NotFound();
+			}
+
+			var entidadDTO = mapper.Map<TDTO>(entidadDB);
+			patchDocument.ApplyTo(entidadDTO, ModelState);
+
+			var esValido = TryValidateModel(entidadDTO);
+
+			if (!esValido)
+			{
+				return BadRequest(ModelState);
+			}
+
+			mapper.Map(entidadDTO, entidadDB);
 			await context.SaveChangesAsync();
 
 			return NoContent();
