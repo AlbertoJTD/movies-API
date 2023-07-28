@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using MoviesAPI.DTOs;
 using MoviesAPI.Entidades;
 using NetTopologySuite;
@@ -12,6 +13,8 @@ namespace MoviesAPI.Helpers
         {
             CreateMap<Genero, GeneroDTO>().ReverseMap();
 			CreateMap<GeneroCreacionDTO, Genero>();
+
+			CreateMap<IdentityUser, UsuarioDTO>();
 
 			CreateMap<Actor, ActorDTO>().ReverseMap();
 			CreateMap<ActorCreacionDTO, Actor>().ReverseMap().ForMember(x => x.Foto, options => options.Ignore());
