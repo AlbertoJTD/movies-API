@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using NetTopologySuite.Geometries;
+using System.ComponentModel.DataAnnotations;
 
 namespace MoviesAPI.Entidades
 {
@@ -11,5 +12,7 @@ namespace MoviesAPI.Entidades
         public string Nombre { get; set; }
 
         public List<PeliculasSalasDeCine> PeliculasSalasDeCine { get; set; }
+
+        public Point Ubicacion { get; set; }
     }
 }
