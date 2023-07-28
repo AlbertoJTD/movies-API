@@ -35,14 +35,7 @@ namespace MoviesAPI.Controllers
 		[HttpGet("{id:int}", Name = "obtenerActor")]
 		public async Task<ActionResult<ActorDTO>> Get(int id)
 		{
-			var entidad = await context.Actores.FirstOrDefaultAsync(x => x.Id == id);
-
-			if (entidad == null)
-			{
-				return NotFound();
-			}
-
-			return mapper.Map<ActorDTO>(entidad);
+			return await Get<Actor, ActorDTO>(id);
 		}
 
 		[HttpPost]
