@@ -14,7 +14,7 @@ namespace MoviesAPI.Controllers
 {
 	[ApiController]
 	[Route("api/peliculas")]
-	public class PeliculasController: ControllerBase
+	public class PeliculasController: CustomBaseController
 	{
 		private readonly ApplicationDbContext context;
 		private readonly IMapper mapper;
@@ -22,7 +22,7 @@ namespace MoviesAPI.Controllers
 		private readonly ILogger<PeliculasController> logger;
 		private readonly string contenedor = "peliculas";
 
-		public PeliculasController(ApplicationDbContext context, IMapper mapper, IAlmacenadorArchivos almacenadorArchivos, ILogger<PeliculasController> logger)
+		public PeliculasController(ApplicationDbContext context, IMapper mapper, IAlmacenadorArchivos almacenadorArchivos, ILogger<PeliculasController> logger): base(context, mapper)
         {
 			this.context = context;
 			this.mapper = mapper;
@@ -141,17 +141,7 @@ namespace MoviesAPI.Controllers
 		[HttpDelete("{id:int}")]
 		public async Task<ActionResult> Delete(int id)
 		{
-			var existePelicula = await context.Peliculas.AnyAsync(x => x.Id == id);
-
-			if (!existePelicula)
-			{
-				return NotFound();
-			}
-
-			context.Remove(new Pelicula { Id = id });
-			await context.SaveChangesAsync();
-
-			return NoContent();
+			return await Delete<Pelicula>(id);
 		}
 
 		[HttpPatch("{id:int}")]
