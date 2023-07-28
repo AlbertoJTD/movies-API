@@ -147,31 +147,7 @@ namespace MoviesAPI.Controllers
 		[HttpPatch("{id:int}")]
 		public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<PeliculaPatchDTO> patchDocument)
 		{
-			if (patchDocument == null)
-			{
-				return BadRequest();
-			}
-
-			var entidadDB = await context.Peliculas.FirstOrDefaultAsync(x => x.Id == id);
-			if (entidadDB == null)
-			{
-				return NotFound();
-			}
-
-			var entidadDTO = mapper.Map<PeliculaPatchDTO>(entidadDB);
-			patchDocument.ApplyTo(entidadDTO, ModelState);
-
-			var esValido = TryValidateModel(entidadDTO);
-
-			if (!esValido)
-			{
-				return BadRequest(ModelState);
-			}
-
-			mapper.Map(entidadDTO, entidadDB);
-			await context.SaveChangesAsync();
-
-			return NoContent();
+			return await Patch<Pelicula, PeliculaPatchDTO>(id, patchDocument);
 		}
 
 		[HttpGet("filtro")]
