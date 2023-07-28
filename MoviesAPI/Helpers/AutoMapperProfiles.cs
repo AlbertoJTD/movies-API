@@ -9,7 +9,7 @@ namespace MoviesAPI.Helpers
         public AutoMapperProfiles()
         {
             CreateMap<Genero, GeneroDTO>().ReverseMap();
-			CreateMap<GeneroCreacionDTO, Genero>().ReverseMap();
+			CreateMap<GeneroCreacionDTO, Genero>();
 
 			CreateMap<Actor, ActorDTO>().ReverseMap();
 			CreateMap<ActorCreacionDTO, Actor>().ReverseMap().ForMember(x => x.Foto, options => options.Ignore());
@@ -22,6 +22,9 @@ namespace MoviesAPI.Helpers
 			CreateMap<PeliculaPatchDTO, Pelicula>().ReverseMap();
 			CreateMap<Pelicula, PeliculaDetallesDTO>().ForMember(x => x.Generos, options => options.MapFrom(MapPeliculasGeneros))
 													  .ForMember(x => x.Actores, options => options.MapFrom(MapPeliculasActores));
+
+			CreateMap<SalaDeCine, SalaDeCineDTO>().ReverseMap();
+			CreateMap<SalaDeCineCreacionDTO, SalaDeCine>();
 		}
 
 		private List<ActorPeliculaDetalleDTO> MapPeliculasActores(Pelicula pelicula, PeliculaDetallesDTO peliculaDetallesDTO)
