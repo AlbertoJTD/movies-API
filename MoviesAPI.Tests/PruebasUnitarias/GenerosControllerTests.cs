@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MoviesAPI.Controllers;
+using MoviesAPI.DTOs;
 using MoviesAPI.Entidades;
 using System;
 using System.Collections.Generic;
@@ -76,6 +78,29 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			// Verificacion
 			var resultado = respuesta.Value;
 			Assert.AreEqual(generoId, resultado.Id);
+		}
+
+		[TestMethod]
+		public async Task CrearGenero()
+		{
+			// Preparacion
+			var nombreBD = Guid.NewGuid().ToString();
+			var contexto = ConstruirContext(nombreBD);
+			var mapper = ConfigurarAutoMapper();
+
+			var nuevoGenero = new GeneroCreacionDTO() { Nombre = "nuevo género" };
+
+			// Prueba
+			var controller = new GenerosController(contexto, mapper);
+			var respuesta = await controller.Post(nuevoGenero);
+
+			// Verificacion
+			var resultado = respuesta as CreatedAtRouteResult;
+			Assert.IsNotNull(resultado);
+
+			var contexto2 = ConstruirContext(nombreBD);
+			var cantidad = await contexto2.Generos.CountAsync();
+			Assert.AreEqual(1, cantidad);
 		}
 	}
 }
