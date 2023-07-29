@@ -102,5 +102,37 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			var cantidad = await contexto2.Generos.CountAsync();
 			Assert.AreEqual(1, cantidad);
 		}
+
+		[TestMethod]
+		public async Task ActualizarGenero()
+		{
+			// Preparacion
+			var nombreBD = Guid.NewGuid().ToString();
+			var contexto = ConstruirContext(nombreBD);
+			var mapper = ConfigurarAutoMapper();
+
+			contexto.Generos.Add(new Genero()
+			{
+				Nombre = "Genero 1"
+			});
+			await contexto.SaveChangesAsync();
+
+			// Prueba
+			var contexto2 = ConstruirContext(nombreBD);
+			var controller = new GenerosController(contexto2, mapper);
+			var generoCreacionDTO = new GeneroCreacionDTO() { Nombre = "Nuevo nombre" };
+
+			var generoId = 1;
+			var respuesta = await controller.Put(generoId, generoCreacionDTO);
+
+			// Verificacion
+			var resultado = respuesta as StatusCodeResult;
+			Assert.AreEqual(204, resultado.StatusCode);
+
+			var contexto3 = ConstruirContext(nombreBD);
+			var existe = await contexto3.Generos.AnyAsync(x => x.Nombre == "Nuevo nombre");
+			Assert.IsTrue(existe);
+		}
+
 	}
 }
