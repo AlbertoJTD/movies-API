@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MoviesAPI.Controllers;
+using MoviesAPI.Entidades;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,8 +20,8 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			var contexto = ConstruirContext(nombreBD);
 			var mapper = ConfigurarAutoMapper();
 
-			contexto.Generos.Add(new Entidades.Genero() { Nombre = "Genero 1" });
-			contexto.Generos.Add(new Entidades.Genero() { Nombre = "Genero 2" });
+			contexto.Generos.Add(new Genero() { Nombre = "Genero 1" });
+			contexto.Generos.Add(new Genero() { Nombre = "Genero 2" });
 			await contexto.SaveChangesAsync();
 
 			var contexto2 = ConstruirContext(nombreBD);
@@ -52,6 +53,29 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			Assert.AreEqual(404, resultado.StatusCode);
 		}
 
+		[TestMethod]
+		public async Task ObtenerGeneroPorId()
+		{
+			// Preparacion
+			var nombreBD = Guid.NewGuid().ToString();
+			var contexto = ConstruirContext(nombreBD);
+			var mapper = ConfigurarAutoMapper();
 
+			contexto.Generos.Add(new Genero() { Nombre = "Genero 1" });
+			contexto.Generos.Add(new Genero() { Nombre = "Genero 2" });
+			await contexto.SaveChangesAsync();
+
+			var contexto2 = ConstruirContext(nombreBD);
+
+			// Prueba
+			var controller = new GenerosController(contexto2, mapper);
+
+			var generoId = 1;
+			var respuesta = await controller.Get(generoId);
+
+			// Verificacion
+			var resultado = respuesta.Value;
+			Assert.AreEqual(generoId, resultado.Id);
+		}
 	}
 }
