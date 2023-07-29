@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI.DTOs;
 using MoviesAPI.Entidades;
+using MoviesAPI.Helpers;
 using MoviesAPI.Migrations;
 using System.Security.Claims;
 
@@ -12,6 +13,7 @@ namespace MoviesAPI.Controllers
 {
     [ApiController]
     [Route("api/peliculas/{pelidulaId:int}/review")]
+	[ServiceFilter(typeof(PeliculaExisteAttribute))]
 	public class ReviewController: CustomBaseController
 	{
 		private readonly ApplicationDbContext context;
@@ -26,12 +28,6 @@ namespace MoviesAPI.Controllers
 		[HttpGet]
 		public async Task<ActionResult<List<ReviewDTO>>> Get(int peliculaId, [FromQuery] PaginacionDTO paginacionDTO)
 		{
-			var existePelicula = await context.Peliculas.AnyAsync(x => x.Id == peliculaId);
-			if (!existePelicula)
-			{
-				return NotFound();
-			}
-
 			var queryable = context.Reviews.Include(x => x.Usuario).AsQueryable();
 			queryable = queryable.Where(x => x.PeliculaId == peliculaId);
 
@@ -42,12 +38,6 @@ namespace MoviesAPI.Controllers
 		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 		public async Task<ActionResult> Post(int peliculaId, [FromBody] ReviewCreacionDTO reviewCreacionDTO)
 		{
-			var existePelicula = await context.Peliculas.AnyAsync(x => x.Id == peliculaId);
-			if (!existePelicula)
-			{
-				return NotFound();
-			}
-
 			var usuarioId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
 
 			var reviewExiste = await context.Reviews.AnyAsync(x => x.PeliculaId == peliculaId && x.UsuarioId == usuarioId);
@@ -70,12 +60,6 @@ namespace MoviesAPI.Controllers
 		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 		public async Task<ActionResult> Put(int peliculaId, int reviewId, [FromBody] ReviewCreacionDTO reviewCreacionDTO)
 		{
-			var existePelicula = await context.Peliculas.AnyAsync(x => x.Id == peliculaId);
-			if (!existePelicula)
-			{
-				return NotFound();
-			}
-
 			var reviewDB = await context.Reviews.FirstOrDefaultAsync(x => x.Id == reviewId);
 			if (reviewDB == null)
 			{
@@ -98,12 +82,6 @@ namespace MoviesAPI.Controllers
 		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 		public async Task<ActionResult> Delete(int peliculaId, int reviewId)
 		{
-			var existePelicula = await context.Peliculas.AnyAsync(x => x.Id == peliculaId);
-			if (!existePelicula)
-			{
-				return NotFound();
-			}
-
 			var reviewDB = await context.Reviews.FirstOrDefaultAsync(x => x.Id == reviewId);
 			if (reviewDB == null)
 			{

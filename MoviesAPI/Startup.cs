@@ -38,6 +38,8 @@ namespace MoviesAPI
 				}).CreateMapper()
 			);
 
+			services.AddScoped<PeliculaExisteAttribute>();
+
 			services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"),
 																		  sqlServerOptions => sqlServerOptions.UseNetTopologySuite()));
 
