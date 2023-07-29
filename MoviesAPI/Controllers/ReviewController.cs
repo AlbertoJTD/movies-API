@@ -12,7 +12,7 @@ using System.Security.Claims;
 namespace MoviesAPI.Controllers
 {
     [ApiController]
-    [Route("api/peliculas/{pelidulaId:int}/review")]
+    [Route("api/peliculas/{peliculaId:int}/reviews")]
 	[ServiceFilter(typeof(PeliculaExisteAttribute))]
 	public class ReviewController: CustomBaseController
 	{
@@ -29,9 +29,8 @@ namespace MoviesAPI.Controllers
 		public async Task<ActionResult<List<ReviewDTO>>> Get(int peliculaId, [FromQuery] PaginacionDTO paginacionDTO)
 		{
 			var queryable = context.Reviews.Include(x => x.Usuario).AsQueryable();
-			queryable = queryable.Where(x => x.PeliculaId == peliculaId);
-
-			return await Get<Review, ReviewDTO>(paginacionDTO, queryable);
+            queryable = queryable.Where(x => x.PeliculaId == peliculaId);
+            return await Get<Review, ReviewDTO>(paginacionDTO, queryable);
 		}
 
 		[HttpPost]
