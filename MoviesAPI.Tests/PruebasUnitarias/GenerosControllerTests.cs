@@ -1,4 +1,5 @@
-﻿using MoviesAPI.Controllers;
+﻿using Microsoft.AspNetCore.Mvc;
+using MoviesAPI.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,5 +34,24 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 
 			Assert.AreEqual(2, generos.Count);
 		}
+
+		[TestMethod]
+		public async Task ObtenerGeneroPorIdNoExistente()
+		{
+			// Preparacion
+			var nombreBD = Guid.NewGuid().ToString();
+			var contexto = ConstruirContext(nombreBD);
+			var mapper = ConfigurarAutoMapper();
+
+			// Prueba
+			var controller = new GenerosController(contexto, mapper);
+			var respuesta = await controller.Get(1);
+
+			// Verificacion
+			var resultado = respuesta.Result as StatusCodeResult;
+			Assert.AreEqual(404, resultado.StatusCode);
+		}
+
+
 	}
 }
