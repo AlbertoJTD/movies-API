@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MoviesAPI.Controllers;
 using MoviesAPI.DTOs;
 using MoviesAPI.Entidades;
+using NetTopologySuite.Algorithm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -133,6 +134,24 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			var existe = await contexto3.Generos.AnyAsync(x => x.Nombre == "Nuevo nombre");
 			Assert.IsTrue(existe);
 		}
+
+		[TestMethod]
+		public async Task EliminarGeneroNoExistente()
+		{
+			// Preparacion
+			var nombreBD = Guid.NewGuid().ToString();
+			var contexto = ConstruirContext(nombreBD);
+			var mapper = ConfigurarAutoMapper();
+
+			// Prueba
+			var controller = new GenerosController(contexto, mapper);
+			var respuesta = await controller.Delete(1);
+
+			// Verificacion
+			var resultado = respuesta as StatusCodeResult;
+			Assert.AreEqual(404, resultado.StatusCode);
+		}
+
 
 	}
 }
