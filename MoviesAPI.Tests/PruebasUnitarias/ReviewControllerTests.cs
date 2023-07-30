@@ -55,5 +55,33 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			var valor = respuesta as IStatusCodeActionResult;
 			Assert.AreEqual(400, valor.StatusCode.Value);
 		}
+
+		[TestMethod]
+		public async Task CrearReview()
+		{
+			// Preparacion
+			var nombreBD = Guid.NewGuid().ToString();
+			var contexto = ConstruirContext(nombreBD);
+			CrearPeliculas(nombreBD);
+
+			var peliculaId = contexto.Peliculas.Select(x => x.Id).First();
+			var contexto2 = ConstruirContext(nombreBD);
+
+			var mapper = ConfigurarAutoMapper();
+			var controller = new ReviewController(contexto2, mapper);
+			controller.ControllerContext = ConstruirControllerContext();
+
+			// Prueba
+			var reviewCreacionDTO = new ReviewCreacionDTO() { Puntuacion = 5 };
+			var respuesta = await controller.Post(peliculaId, reviewCreacionDTO);
+
+			// Verificacion
+			var valor = respuesta as NoContentResult;
+			Assert.IsNotNull(valor);
+
+			var contexto3 = ConstruirContext(nombreBD);
+			var reviewDB = contexto3.Reviews.First();
+			Assert.AreEqual(usuarioPorDefectoId, reviewDB.UsuarioId);
+		}
 	}
 }
