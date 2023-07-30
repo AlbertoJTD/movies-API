@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Moq;
 using MoviesAPI.Controllers;
 using MoviesAPI.DTOs;
 using MoviesAPI.Entidades;
+using MoviesAPI.Servicios;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,6 +64,39 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			});
 			var actoresPagina3 = pagina3.Value;
 			Assert.AreEqual(0, actoresPagina3.Count);
+		}
+
+		[TestMethod]
+		public async Task CrearActorSinFoto()
+		{
+			// Preparacion
+			var nombreBD = Guid.NewGuid().ToString();
+			var contexto = ConstruirContext(nombreBD);
+			var mapper = ConfigurarAutoMapper();
+
+			var actor = new ActorCreacionDTO()
+			{
+				Nombre = "Alberth",
+				FechaNacimiento = DateTime.Now
+			};
+
+			var mock = new Mock<IAlmacenadorArchivos>();
+			mock.Setup(x => x.GuardarArchivo(null, null, null, null)).Returns(Task.FromResult("url"));
+
+			// Prueba
+			var controller = new ActoresController(contexto, mapper, mock.Object);
+			var respuesta = await controller.Post(actor);
+
+			// Verificacion
+			var resultado = respuesta as CreatedAtRouteResult;
+			Assert.AreEqual(201, resultado.StatusCode);
+
+			var contexto2 = ConstruirContext(nombreBD);
+			var listado = await contexto2.Actores.ToListAsync();
+			Assert.AreEqual(1, listado.Count);
+			Assert.IsNull(listado[0].Foto);
+
+			Assert.AreEqual(0, mock.Invocations.Count);
 		}
 	}
 }
