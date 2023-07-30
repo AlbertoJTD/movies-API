@@ -120,5 +120,31 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			Assert.AreEqual(1, peliculas.Count);
 			Assert.AreEqual("No estrenada", peliculas[0].Titulo);
 		}
+
+		[TestMethod]
+		public async Task FiltrarPorGenero()
+		{
+			// Preparacion
+			var nombreBD = CrearDataPrueba();
+			var mapper = ConfigurarAutoMapper();
+			var contexto = ConstruirContext(nombreBD);
+
+			// Prueba
+			var controller = new PeliculasController(contexto, mapper, null, null);
+			controller.ControllerContext.HttpContext = new DefaultHttpContext();
+
+			var generoId = contexto.Generos.Select(x => x.Id).First();
+
+			var filtroDTO = new FiltroPeliculaDTO()
+			{
+				GeneroId = generoId
+			};
+
+			// Verificacion
+			var respuesta = await controller.Filtrar(filtroDTO);
+			var peliculas = respuesta.Value;
+			Assert.AreEqual(1, peliculas.Count);
+			Assert.AreEqual("Pelicula con Genero", peliculas[0].Titulo);
+		}
 	}
 }
