@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.JsonPatch.Operations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using MoviesAPI.Controllers;
@@ -154,6 +156,49 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			// Verificacion
 			var resultado = respuesta as StatusCodeResult;
 			Assert.AreEqual(404, resultado.StatusCode);
+		}
+
+		[TestMethod]
+		public async Task Patch_ActualizarUnSoloCampo()
+		{
+			// Preparacion
+			var nombreBD = Guid.NewGuid().ToString();
+			var contexto = ConstruirContext(nombreBD);
+			var mapper = ConfigurarAutoMapper();
+
+			var fechaNacimiento = DateTime.Now;
+			var actor = new Actor()
+			{
+				Nombre = "John Doe",
+				FechaNacimiento = fechaNacimiento
+			};
+			contexto.Add(actor);
+			await contexto.SaveChangesAsync();
+
+			// Prueba
+			var contexto2 = ConstruirContext(nombreBD);
+			var controller = new ActoresController(contexto2, mapper, null);
+
+			var objectValidator = new Mock<IObjectModelValidator>();
+			objectValidator.Setup(x => x.Validate(It.IsAny<ActionContext>(),
+												  It.IsAny<ValidationStateDictionary>(),
+												  It.IsAny<string>(),
+												  It.IsAny<object>()));
+
+			controller.ObjectValidator = objectValidator.Object;
+
+			// Verificacion
+			var patchDoc = new JsonPatchDocument<ActorPatchDTO>();
+			patchDoc.Operations.Add(new Operation<ActorPatchDTO>("replace", "/nombre", null, "Scarlet"));
+
+			var respuesta = await controller.Patch(1, patchDoc);
+			var resultado = respuesta as StatusCodeResult;
+			Assert.AreEqual(204, resultado.StatusCode);
+
+			var contexto3 = ConstruirContext(nombreBD);
+			var actorDB = await contexto3.Actores.FirstAsync();
+			Assert.AreEqual("Scarlet", actorDB.Nombre);
+			Assert.AreEqual(fechaNacimiento, actorDB.FechaNacimiento);
 		}
 	}
 }
