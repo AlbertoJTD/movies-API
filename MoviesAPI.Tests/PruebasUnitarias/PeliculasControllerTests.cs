@@ -1,4 +1,7 @@
-﻿using MoviesAPI.Entidades;
+﻿using Microsoft.AspNetCore.Http;
+using MoviesAPI.Controllers;
+using MoviesAPI.DTOs;
+using MoviesAPI.Entidades;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +44,33 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			context.SaveChanges();
 
 			return databaseName;
+		}
+
+		[TestMethod]
+		public async Task FiltrarPorTitulo()
+		{
+			// Preparacion
+			var nombreBD = CrearDataPrueba();
+			var mapper = ConfigurarAutoMapper();
+			var contexto = ConstruirContext(nombreBD);
+
+			// Prueba
+			var controller = new PeliculasController(contexto, mapper, null, null);
+			controller.ControllerContext.HttpContext = new DefaultHttpContext();
+
+			var tituloPelicula = "Pelicula 1";
+
+			var filtroDTO = new FiltroPeliculaDTO()
+			{
+				Titulo = tituloPelicula,
+				CantidadRegistrosPorPagina = 10
+			};
+
+			// Verificacion
+			var respuesta = await controller.Filtrar(filtroDTO);
+			var peliculas = respuesta.Value;
+			Assert.AreEqual(1, peliculas.Count);
+			Assert.AreEqual(tituloPelicula, peliculas[0].Titulo);
 		}
 	}
 }
