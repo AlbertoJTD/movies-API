@@ -26,16 +26,21 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 		{
 			// Preparacion
 			var nombreBD = Guid.NewGuid().ToString();
-			var cuentasController = ConstruirCuentasController(nombreBD);
-			var userInfo = new UserInfo() { Email = "ejemplo@example.com", Password = "Aa123456!" };
+			await CrearUsuarioHelper(nombreBD);
 
 			// Prueba
-			await cuentasController.CreateUser(userInfo);
 			var context2 = ConstruirContext(nombreBD);
 
 			// Verificacion
 			var numeroUsuario = await context2.Users.CountAsync();
 			Assert.AreEqual(1, numeroUsuario);
+		}
+
+		private async Task CrearUsuarioHelper(string nombreBD)
+		{
+			var cuentasController = ConstruirCuentasController(nombreBD);
+			var userInfo = new UserInfo() { Email = "ejemplo@example.com", Password = "Aa123456!" };
+			await cuentasController.CreateUser(userInfo);
 		}
 
 		private CuentasController ConstruirCuentasController(string nombreBD)
