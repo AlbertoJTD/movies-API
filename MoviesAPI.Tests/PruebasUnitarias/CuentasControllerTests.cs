@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using MoviesAPI.Controllers;
+using MoviesAPI.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +24,18 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 		[TestMethod]
 		public async Task CrearUsuario()
 		{
+			// Preparacion
+			var nombreBD = Guid.NewGuid().ToString();
+			var cuentasController = ConstruirCuentasController(nombreBD);
+			var userInfo = new UserInfo() { Email = "ejemplo@example.com", Password = "Aa123456!" };
 
+			// Prueba
+			await cuentasController.CreateUser(userInfo);
+			var context2 = ConstruirContext(nombreBD);
+
+			// Verificacion
+			var numeroUsuario = await context2.Users.CountAsync();
+			Assert.AreEqual(1, numeroUsuario);
 		}
 
 		private CuentasController ConstruirCuentasController(string nombreBD)
