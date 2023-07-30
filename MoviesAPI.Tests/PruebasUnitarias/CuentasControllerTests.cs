@@ -64,7 +64,7 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 
 			// Prueba
 			var controller = ConstruirCuentasController(nombreBD);
-			var userInfo = new UserInfo() { Email = "ejemplo@hotmail.com", Password = "Aa123456!" };
+			var userInfo = new UserInfo() { Email = "ejemplo@example.com", Password = "Aa123456!" };
 
 			// Verificacion
 			var respuesta = await controller.Login(userInfo);
