@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI.DTOs;
@@ -39,6 +41,7 @@ namespace MoviesAPI.Controllers
 		}
 
 		[HttpDelete("{id:int}")]
+		[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 		public async Task<ActionResult> Delete(int id)
 		{
 			return await Delete<Genero>(id);
