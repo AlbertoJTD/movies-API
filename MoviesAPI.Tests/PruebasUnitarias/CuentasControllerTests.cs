@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,24 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			// Verificacion
 			var numeroUsuario = await context2.Users.CountAsync();
 			Assert.AreEqual(1, numeroUsuario);
+		}
+
+		[TestMethod]
+		public async Task UsuarioNoPuedeLoguearse()
+		{
+			// Preparacion
+			var nombreBD = Guid.NewGuid().ToString();
+			await CrearUsuarioHelper(nombreBD);
+			var controller = ConstruirCuentasController(nombreBD);
+			var userInfo = new UserInfo() { Email = "ejemplo@example.com", Password = "WrongPassword!" };
+
+			// Prueba
+			var respuesta = await controller.Login(userInfo);
+
+			// Verificacion
+			Assert.IsNull(respuesta.Value);
+			var resultado = respuesta.Result as BadRequestObjectResult;
+			Assert.IsNotNull(resultado);
 		}
 
 		private async Task CrearUsuarioHelper(string nombreBD)
