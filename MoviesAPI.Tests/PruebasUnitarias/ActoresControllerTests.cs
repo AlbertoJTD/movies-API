@@ -98,5 +98,43 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 
 			Assert.AreEqual(0, mock.Invocations.Count);
 		}
+
+		[TestMethod]
+		public async Task CrearActorConFoto()
+		{
+			// Preparacion
+			var nombreBD = Guid.NewGuid().ToString();
+			var contexto = ConstruirContext(nombreBD);
+			var mapper = ConfigurarAutoMapper();
+
+			var content = Encoding.UTF8.GetBytes("Imagen de prueba");
+			var archivo = new FormFile(new MemoryStream(content), 0, content.Length, "Data", "imagen.jpg");
+			archivo.Headers = new HeaderDictionary();
+			archivo.ContentType = "image/jpg";
+
+			var actor = new ActorCreacionDTO()
+			{
+				Nombre = "Alberth",
+				FechaNacimiento = DateTime.Now,
+				Foto = archivo
+			};
+
+			var mock = new Mock<IAlmacenadorArchivos>();
+			mock.Setup(x => x.GuardarArchivo(content, ".jpg", "actores", archivo.ContentType)).Returns(Task.FromResult("url"));
+
+			// Prueba
+			var controller = new ActoresController(contexto, mapper, mock.Object);
+			var respuesta = await controller.Post(actor);
+
+			// Verificacion
+			var resultado = respuesta as CreatedAtRouteResult;
+			Assert.AreEqual(201, resultado.StatusCode);
+
+			var contexto2 = ConstruirContext(nombreBD);
+			var listado = await contexto2.Actores.ToListAsync();
+			Assert.AreEqual(1, listado.Count);
+			Assert.AreEqual("url", listado[0].Foto);
+			Assert.AreEqual(1, mock.Invocations.Count);
+		}
 	}
 }
