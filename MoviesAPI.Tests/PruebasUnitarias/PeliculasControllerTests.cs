@@ -146,5 +146,41 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			Assert.AreEqual(1, peliculas.Count);
 			Assert.AreEqual("Pelicula con Genero", peliculas[0].Titulo);
 		}
+
+		[TestMethod]
+		public async Task FiltrarOrdenarTituloAscendente()
+		{
+			// Preparacion
+			var nombreBD = CrearDataPrueba();
+			var mapper = ConfigurarAutoMapper();
+			var contexto = ConstruirContext(nombreBD);
+
+			// Prueba
+			var controller = new PeliculasController(contexto, mapper, null, null);
+			controller.ControllerContext.HttpContext = new DefaultHttpContext();
+
+			var filtroDTO = new FiltroPeliculaDTO()
+			{
+				CampoOrdenar = "titulo",
+				OrdenAscendente = true
+			};
+
+			var respuesta = await controller.Filtrar(filtroDTO);
+			var peliculas = respuesta.Value;
+
+			var contexto2 = ConstruirContext(nombreBD);
+			var peliculasDB = contexto2.Peliculas.OrderBy(x => x.Titulo).ToList();
+
+			// Verificacion
+			Assert.AreEqual(peliculasDB.Count, peliculas.Count);
+
+			for (int i = 0; i < peliculasDB.Count; i++)
+			{
+				var peliculaDelControlador = peliculas[i];
+				var peliculaDB = peliculasDB[i];
+
+				Assert.AreEqual(peliculaDB.Id, peliculaDelControlador.Id);
+			}
+		}
 	}
 }
