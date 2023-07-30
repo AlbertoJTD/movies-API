@@ -72,5 +72,29 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			Assert.AreEqual(1, peliculas.Count);
 			Assert.AreEqual(tituloPelicula, peliculas[0].Titulo);
 		}
+
+		[TestMethod]
+		public async Task FitrarEnCines()
+		{
+			// Preparacion
+			var nombreBD = CrearDataPrueba();
+			var mapper = ConfigurarAutoMapper();
+			var contexto = ConstruirContext(nombreBD);
+
+			// Prueba
+			var controller = new PeliculasController(contexto, mapper, null, null);
+			controller.ControllerContext.HttpContext = new DefaultHttpContext();
+
+			var filtroDTO = new FiltroPeliculaDTO()
+			{
+				EnCines = true
+			};
+
+			// Verificacion
+			var respuesta = await controller.Filtrar(filtroDTO);
+			var peliculas = respuesta.Value;
+			Assert.AreEqual(1, peliculas.Count);
+			Assert.AreEqual("Pelicula en Cines", peliculas[0].Titulo);
+		}
 	}
 }
