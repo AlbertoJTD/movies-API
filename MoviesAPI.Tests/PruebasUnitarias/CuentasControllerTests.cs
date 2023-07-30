@@ -55,6 +55,23 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			Assert.IsNotNull(resultado);
 		}
 
+		[TestMethod]
+		public async Task UsuarioLogin()
+		{
+			// Preparacion
+			var nombreBD = Guid.NewGuid().ToString();
+			await CrearUsuarioHelper(nombreBD);
+
+			// Prueba
+			var controller = ConstruirCuentasController(nombreBD);
+			var userInfo = new UserInfo() { Email = "ejemplo@hotmail.com", Password = "Aa123456!" };
+
+			// Verificacion
+			var respuesta = await controller.Login(userInfo);
+			Assert.IsNotNull(respuesta.Value);
+			Assert.IsNotNull(respuesta.Value.Token);
+		}
+
 		private async Task CrearUsuarioHelper(string nombreBD)
 		{
 			var cuentasController = ConstruirCuentasController(nombreBD);
