@@ -22,8 +22,8 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 
 			var peliculas = new List<Pelicula>()
 			{
-				new Pelicula(){Titulo = "Pelicula 1", FechaEstreno = new DateTime(2024, 1,1), EnCines = false},
-				new Pelicula(){Titulo = "No estrenada", FechaEstreno = DateTime.Today.AddDays(1), EnCines = false},
+				new Pelicula(){Titulo = "Pelicula 1", FechaEstreno = new DateTime(2020, 1,1), EnCines = false},
+				new Pelicula(){Titulo = "No estrenada", FechaEstreno = DateTime.Today.AddDays(10), EnCines = false},
 				new Pelicula(){Titulo = "Pelicula en Cines", FechaEstreno = DateTime.Today.AddDays(-1), EnCines = true}
 			};
 
@@ -95,6 +95,30 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 			var peliculas = respuesta.Value;
 			Assert.AreEqual(1, peliculas.Count);
 			Assert.AreEqual("Pelicula en Cines", peliculas[0].Titulo);
+		}
+
+		[TestMethod]
+		public async Task FiltrarProximosEstrenos()
+		{
+			// Preparacion
+			var nombreBD = CrearDataPrueba();
+			var mapper = ConfigurarAutoMapper();
+			var contexto = ConstruirContext(nombreBD);
+
+			// Prueba
+			var controller = new PeliculasController(contexto, mapper, null, null);
+			controller.ControllerContext.HttpContext = new DefaultHttpContext();
+
+			var filtroDTO = new FiltroPeliculaDTO()
+			{
+				ProximosEstrenos = true
+			};
+
+			// Verificacion
+			var respuesta = await controller.Filtrar(filtroDTO);
+			var peliculas = respuesta.Value;
+			Assert.AreEqual(1, peliculas.Count);
+			Assert.AreEqual("No estrenada", peliculas[0].Titulo);
 		}
 	}
 }
