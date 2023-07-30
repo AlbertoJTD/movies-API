@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using MoviesAPI.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +25,26 @@ namespace MoviesAPI.Tests.PruebasUnitarias
 
 		}
 
+		private CuentasController ConstruirCuentasController(string nombreBD)
+		{
+			var context = ConstruirContext(nombreBD);
+			var myUserStore = new UserStore<IdentityUser>(context);
+			var userManager = BuildUserManager(myUserStore);
+			var mapper = ConfigurarAutoMapper();
+
+			var httpContext = new DefaultHttpContext();
+			MockAuth(httpContext);
+			var signInManager = SetupSignInManager(userManager, httpContext);
+
+			var miConfiguracion = new Dictionary<string, string>
+			{
+				{"JWT:key", "73717aea4ab447da998a7c047786dbd5" }
+			};
+
+			var configuration = new ConfigurationBuilder().AddInMemoryCollection(miConfiguracion).Build();
+
+			return new CuentasController(userManager, signInManager, configuration, context, mapper);
+		}
 
 		// Source: https://github.com/dotnet/aspnetcore/blob/master/src/Identity/test/Shared/MockHelpers.cs
 		// Source: https://github.com/dotnet/aspnetcore/blob/master/src/Identity/test/Identity.Test/SignInManagerTest.cs
